@@ -1,9 +1,8 @@
-const RpcClient = require ('bitcoind-rpc');
-// const bitcore = require ('bitcoin-core');
-
-
 const run = () => {
 
+  const RpcClient = require ('bitcoind-rpc');
+  const bitcore = require ('bitcoin-core');
+  
   //setting the cofigurations for the rpc connection
   var configSetting = {
     host: 'ec2-18-222-164-52.us-east-2.compute.amazonaws.com',
