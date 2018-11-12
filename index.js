@@ -1,47 +1,51 @@
-const express = require ('express');
-const app = express();
-const rpcClient = require('bitcoind-rpc');
+var express = require('express')
+var bodyParser = require('body-parser')
+var app = express();
 
-var configSetting = {
-  host: '127.0.0.1',
-  port: '8332',
-  user: 'bitcoinN0deAccess',
-  password: 'bitc0inRPCpass'
-};
+app.use(bodyParser.json({ type: 'application/json' }))
+app.use(bodyParser.urlencoded({extended: true}))
+//app.use(bodyParser.text({ type: 'text/html' }))
 
-rpc = new rpcClient(configSetting);
+var Client = require('bitcoin-core')
+var client = new Client({
+    port: 8332,
+    host: '127.0.0.1',
+    username: 'bitcoinN0deAccess',
+    password: 'bitc0inRPCpass'
+});
 
+
+app.get('/getBlockChainInfo', (req, res) => {
+    client.getBlockchainInformation().
+    then((info) => res.json(info), console.log(res)).
+    catch(err => {
+        console.log(err.message);
+    });
+});
 
 app.get('/getBalance', (req, res) => {
-  
-  const rpc = new rpcClient(configSetting);
-  rpc.getBalance('*', 0, (err, balance) => {
-    if(err) {
-      return res.status(400).json({
-        message: err.message
-      }),
-      console.log(err.message);
-    }
-    return res.status(200).json(balance),
-    console.log('Balance :', +balance);
-  });
-
+    client.getBalance("*", 6).then((balance) => res.json(balance));
 });
 
-app.get('/getMiningInfo', (req, res) => {
-  rpc.getmininginfo((err, miningInfo) => {
-    if(err){
-      return res.status(400).json({
-        message: err.message
-      }),
-      console.log(err.message);
-    }
-    return res.status(200).json(miningInfo),
-    console.log(miningInfo);
-  });
-});
+app.post('/getNewAddress', (req, res) => {
+        client.getNewAddress().then(
+            (Account_Address) => {
+
+                var account_name = req.body.account_name;
+                
+                return res.status(200).json({
+                "Address": Account_Address,
+                "Account Name" : account_name
+            }),
+            console.log('Account Address: ' + Account_Address + '\n'+ 'Account Name :' + account_name)
+        }).
+            catch((err)=> {
+            console.log(err.message);
+        })
+    });
 
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
+app.listen(3001, () => {
+    console.log("Listening on port 3001");
 });
+
